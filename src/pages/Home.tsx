@@ -1,0 +1,95 @@
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { FileText, Pill, Droplet, LogIn } from 'lucide-react';
+
+const Home = () => {
+  const sectors = [
+    {
+      id: 'tecnovigilancia',
+      title: 'Tecnovigilância',
+      description: 'Notificações de eventos adversos relacionados a artigos e equipamentos médicos',
+      icon: FileText,
+      path: '/tecnovigilancia/form',
+      color: 'from-teal-500 to-cyan-500',
+    },
+    {
+      id: 'farmacovigilancia',
+      title: 'Farmacovigilância',
+      description: 'Notificações de eventos adversos relacionados a medicamentos',
+      icon: Pill,
+      path: '/farmacovigilancia/form',
+      color: 'from-emerald-500 to-teal-500',
+    },
+    {
+      id: 'hemovigilancia',
+      title: 'Hemovigilância',
+      description: 'Notificações de incidentes transfusionais',
+      icon: Droplet,
+      path: '/hemovigilancia/form',
+      color: 'from-cyan-500 to-blue-500',
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-accent/20">
+      <div className="container mx-auto px-4 py-8">
+        <header className="flex justify-between items-center mb-12">
+          <div>
+            <h1 className="text-4xl font-bold text-foreground mb-2">
+              Sistema de Notificações
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Portal de registro de eventos adversos e incidentes
+            </p>
+          </div>
+          <Link to="/login">
+            <Button size="lg" className="gap-2">
+              <LogIn className="h-5 w-5" />
+              Login Interno
+            </Button>
+          </Link>
+        </header>
+
+        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {sectors.map((sector) => {
+            const Icon = sector.icon;
+            return (
+              <Link key={sector.id} to={sector.path} className="group">
+                <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 hover:border-primary">
+                  <CardHeader>
+                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${sector.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                      <Icon className="h-8 w-8 text-white" />
+                    </div>
+                    <CardTitle className="text-2xl">{sector.title}</CardTitle>
+                    <CardDescription className="text-base">
+                      {sector.description}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                      Fazer Notificação
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
+        </div>
+
+        <div className="mt-12 text-center">
+          <Card className="max-w-2xl mx-auto bg-primary/5 border-primary/20">
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-2">Notificação Anônima</h3>
+              <p className="text-muted-foreground">
+                As notificações podem ser feitas de forma anônima. O e-mail para acompanhamento é opcional.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Home;
