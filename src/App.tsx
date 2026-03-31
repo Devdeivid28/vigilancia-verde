@@ -18,6 +18,7 @@ import Respondidas from "./pages/Respondidas";
 import Arquivadas from "./pages/Arquivadas";
 import Pesquisa from "./pages/Pesquisa";
 import Configuracoes from "./pages/Configuracoes";
+import Usuarios from "./pages/Usuarios";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
