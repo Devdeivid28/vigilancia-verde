@@ -81,6 +81,13 @@ const App = () => (
                 </DashboardLayout>
               </ProtectedRoute>
             } />
+            <Route path="/dashboard/usuarios" element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <Usuarios />
+                </DashboardLayout>
+              </ProtectedRoute>
+            } />
             
             {/* Catch all */}
             <Route path="*" element={<NotFound />} />
