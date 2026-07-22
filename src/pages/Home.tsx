@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Pill, Droplet, LogIn } from 'lucide-react';
+import { FileText, Pill, Droplet, LogIn, SprayCan, TrendingDown, BadgeCheck, Bandage, Stethoscope } from 'lucide-react';
 
 const Home = () => {
   const sectors = [
@@ -28,6 +28,46 @@ const Home = () => {
       icon: Droplet,
       path: '/hemovigilancia/form',
       color: 'from-cyan-500 to-blue-500',
+    },
+    {
+      id: 'saneantes',
+      title: 'Saneantes',
+      description: 'Notificações de ocorrências com produtos saneantes',
+      icon: SprayCan,
+      path: '/saneantes/form',
+      color: 'from-lime-500 to-emerald-500',
+    },
+    {
+      id: 'quedas',
+      title: 'Quedas',
+      description: 'Notificações de quedas de pacientes',
+      icon: TrendingDown,
+      path: '/quedas/form',
+      color: 'from-orange-500 to-red-500',
+    },
+    {
+      id: 'identificacao',
+      title: 'Identificação',
+      description: 'Notificações de falha de identificação do paciente',
+      icon: BadgeCheck,
+      path: '/identificacao/form',
+      color: 'from-indigo-500 to-purple-500',
+    },
+    {
+      id: 'lesao-pele',
+      title: 'Lesão de Pele',
+      description: 'Notificações de lesões de pele e eventos adversos',
+      icon: Bandage,
+      path: '/lesao-pele/form',
+      color: 'from-pink-500 to-rose-500',
+    },
+    {
+      id: 'cirurgia-segura',
+      title: 'Cirurgia Segura',
+      description: 'Notificações de eventos adversos cirúrgicos',
+      icon: Stethoscope,
+      path: '/cirurgia-segura/form',
+      color: 'from-sky-500 to-indigo-500',
     },
   ];
 
