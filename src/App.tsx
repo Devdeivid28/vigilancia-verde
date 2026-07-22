@@ -12,6 +12,11 @@ import Login from "./pages/Login";
 import TecnovigilanciaForm from "./pages/TecnovigilanciaForm";
 import FarmacovigilanciaForm from "./pages/FarmacovigilanciaForm";
 import HemovigilanciaForm from "./pages/HemovigilanciaForm";
+import SaneantesForm from "./pages/SaneantesForm";
+import QuedasForm from "./pages/QuedasForm";
+import IdentificacaoForm from "./pages/IdentificacaoForm";
+import LesaoPeleForm from "./pages/LesaoPeleForm";
+import CirurgiaSeguraForm from "./pages/CirurgiaSeguraForm";
 import Dashboard from "./pages/Dashboard";
 import Pendentes from "./pages/Pendentes";
 import Respondidas from "./pages/Respondidas";
@@ -37,6 +42,11 @@ const App = () => (
             <Route path="/tecnovigilancia/form" element={<TecnovigilanciaForm />} />
             <Route path="/farmacovigilancia/form" element={<FarmacovigilanciaForm />} />
             <Route path="/hemovigilancia/form" element={<HemovigilanciaForm />} />
+            <Route path="/saneantes/form" element={<SaneantesForm />} />
+            <Route path="/quedas/form" element={<QuedasForm />} />
+            <Route path="/identificacao/form" element={<IdentificacaoForm />} />
+            <Route path="/lesao-pele/form" element={<LesaoPeleForm />} />
+            <Route path="/cirurgia-segura/form" element={<CirurgiaSeguraForm />} />
             
             {/* Protected Routes */}
             <Route path="/dashboard" element={
