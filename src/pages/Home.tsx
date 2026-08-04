@@ -8,7 +8,7 @@ const Home = () => {
     {
       id: 'tecnovigilancia',
       title: 'Tecnovigilância',
-      description: 'Notificações de eventos adversos relacionados a artigos e equipamentos médicos',
+      description: 'Notificações de artigos e equipamentos médicos',
       icon: FileText,
       path: '/tecnovigilancia/form',
       color: 'from-teal-500 to-cyan-500',
