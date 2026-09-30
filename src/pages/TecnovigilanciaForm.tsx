@@ -8,6 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ArrowLeft, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { z } from 'zod';
+import { SectorSelect } from '@/components/forms/SectorSelect';
+import { descriptionPlaceholder, today } from '@/lib/form-reference';
+import { anvisaRegistration, description, optionalEmail, requiredDate, requiredText, showValidationError } from '@/lib/form-validation';
+
+const schema = z.object({ dataOcorrencia: requiredDate('Data da Ocorrência'), setor: requiredText('Setor'), tipoProduto: requiredText('Produto'), marca: requiredText('Marca'), registroAnvisa: anvisaRegistration, lote: requiredText('Lote'), descricao, email: optionalEmail });
 
 const TecnovigilanciaForm = () => {
   const navigate = useNavigate();
@@ -24,6 +30,8 @@ const TecnovigilanciaForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const error = showValidationError(schema.safeParse(formData));
+    if (error) { toast.error(error); return; }
     toast.success('Notificação enviada com sucesso!');
     setTimeout(() => navigate('/'), 1500);
   };
@@ -56,6 +64,7 @@ const TecnovigilanciaForm = () => {
                   <Input
                     id="dataOcorrencia"
                     type="date"
+                    max={today()}
                     value={formData.dataOcorrencia}
                     onChange={(e) => setFormData({ ...formData, dataOcorrencia: e.target.value })}
                     required
@@ -63,14 +72,7 @@ const TecnovigilanciaForm = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="setor">Setor de Origem *</Label>
-                  <Input
-                    id="setor"
-                    value={formData.setor}
-                    onChange={(e) => setFormData({ ...formData, setor: e.target.value })}
-                    placeholder="Ex: UTI, Centro Cirúrgico..."
-                    required
-                  />
+                  <SectorSelect label="Setor de Origem" value={formData.setor} onChange={(setor) => setFormData({ ...formData, setor })} />
                 </div>
               </div>
 
@@ -103,13 +105,16 @@ const TecnovigilanciaForm = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="registroAnvisa">Registro Anvisa *</Label>
+                  <Label htmlFor="registroAnvisa">Registro ANVISA *</Label>
                   <Input
                     id="registroAnvisa"
                     value={formData.registroAnvisa}
-                    onChange={(e) => setFormData({ ...formData, registroAnvisa: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, registroAnvisa: e.target.value.replace(/[^\d]/g, '') })}
+                    inputMode="numeric"
+                    placeholder="Somente números"
                     required
                   />
+                  <Button type="button" variant="link" className="h-auto p-0 text-xs" onClick={() => setFormData({ ...formData, registroAnvisa: 'Não informado' })}>Usar “Não informado”</Button>
                 </div>
 
                 <div className="space-y-2">
@@ -130,13 +135,15 @@ const TecnovigilanciaForm = () => {
                   value={formData.descricao}
                   onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
                   rows={6}
-                  placeholder="Descreva detalhadamente o evento adverso..."
+                  placeholder={descriptionPlaceholder}
+                  minLength={30}
+                  maxLength={5000}
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">E-mail para Acompanhamento (Opcional)</Label>
+                <Label htmlFor="email">E-mail para acompanhamento da notificação (Opcional)</Label>
                 <Input
                   id="email"
                   type="email"
@@ -146,7 +153,7 @@ const TecnovigilanciaForm = () => {
                 />
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row">
                 <Button type="submit" size="lg" className="flex-1">
                   Enviar Notificação
                 </Button>

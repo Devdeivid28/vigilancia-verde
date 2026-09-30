@@ -8,11 +8,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ArrowLeft, Pill } from 'lucide-react';
 import { toast } from 'sonner';
+import { z } from 'zod';
+import { SectorSelect } from '@/components/forms/SectorSelect';
+import { descriptionPlaceholder, today } from '@/lib/form-reference';
+import { description, optionalEmail, requiredDate, requiredText, showValidationError } from '@/lib/form-validation';
+
+const schema = z.object({ setor: requiredText('Setor'), prontuario: requiredText('Nº do Prontuário'), nomePaciente: requiredText('Nome do Paciente'), sexo: requiredText('Sexo'), dataNascimento: requiredDate('Data de Nascimento'), dataEvento: requiredDate('Data do Evento Adverso'), descricaoEvento: description, medicamentoSuspeito: requiredText('Medicamento Suspeito'), dataNotificacao: requiredDate('Data desta Notificação'), email: optionalEmail }).superRefine((data, ctx) => {
+  if (data.dataEvento < data.dataNascimento) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'A Data do Evento deve ser igual ou posterior à Data de Nascimento.', path: ['dataEvento'] });
+  if (data.dataNotificacao < data.dataEvento) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'A Data da Notificação deve ser igual ou posterior à Data do Evento.', path: ['dataNotificacao'] });
+});
 
 const FarmacovigilanciaForm = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     setor: '',
+    prontuario: '',
     nomePaciente: '',
     sexo: 'masculino',
     dataNascimento: '',
@@ -25,6 +35,8 @@ const FarmacovigilanciaForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const error = showValidationError(schema.safeParse(formData));
+    if (error) { toast.error(error); return; }
     toast.success('Notificação enviada com sucesso!');
     setTimeout(() => navigate('/'), 1500);
   };
@@ -51,16 +63,7 @@ const FarmacovigilanciaForm = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="setor">Setor de Origem *</Label>
-                <Input
-                  id="setor"
-                  value={formData.setor}
-                  onChange={(e) => setFormData({ ...formData, setor: e.target.value })}
-                  placeholder="Ex: Clínica Médica, Pediatria..."
-                  required
-                />
-              </div>
+              <SectorSelect label="Setor de Origem" value={formData.setor} onChange={(setor) => setFormData({ ...formData, setor })} />
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -72,6 +75,8 @@ const FarmacovigilanciaForm = () => {
                     required
                   />
                 </div>
+
+                <div className="space-y-2"><Label htmlFor="prontuario">Nº do Prontuário *</Label><Input id="prontuario" value={formData.prontuario} onChange={(e) => setFormData({ ...formData, prontuario: e.target.value })} required /></div>
 
                 <div className="space-y-2">
                   <Label>Sexo *</Label>
@@ -99,6 +104,7 @@ const FarmacovigilanciaForm = () => {
                   <Input
                     id="dataNascimento"
                     type="date"
+                    max={today()}
                     value={formData.dataNascimento}
                     onChange={(e) => setFormData({ ...formData, dataNascimento: e.target.value })}
                     required
@@ -110,6 +116,7 @@ const FarmacovigilanciaForm = () => {
                   <Input
                     id="dataEvento"
                     type="date"
+                    max={today()}
                     value={formData.dataEvento}
                     onChange={(e) => setFormData({ ...formData, dataEvento: e.target.value })}
                     required
@@ -124,7 +131,9 @@ const FarmacovigilanciaForm = () => {
                   value={formData.descricaoEvento}
                   onChange={(e) => setFormData({ ...formData, descricaoEvento: e.target.value })}
                   rows={4}
-                  placeholder="Descreva o evento adverso..."
+                  placeholder={descriptionPlaceholder}
+                  minLength={30}
+                  maxLength={5000}
                   required
                 />
               </div>
@@ -145,6 +154,7 @@ const FarmacovigilanciaForm = () => {
                 <Input
                   id="dataNotificacao"
                   type="date"
+                  max={today()}
                   value={formData.dataNotificacao}
                   onChange={(e) => setFormData({ ...formData, dataNotificacao: e.target.value })}
                   required
@@ -152,7 +162,7 @@ const FarmacovigilanciaForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">E-mail para Acompanhamento (Opcional)</Label>
+                <Label htmlFor="email">E-mail para acompanhamento da notificação (Opcional)</Label>
                 <Input
                   id="email"
                   type="email"
@@ -162,7 +172,7 @@ const FarmacovigilanciaForm = () => {
                 />
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row">
                 <Button type="submit" size="lg" className="flex-1">
                   Enviar Notificação
                 </Button>
