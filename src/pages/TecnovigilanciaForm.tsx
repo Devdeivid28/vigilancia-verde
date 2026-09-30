@@ -11,9 +11,9 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { SectorSelect } from '@/components/forms/SectorSelect';
 import { descriptionPlaceholder, today } from '@/lib/form-reference';
-import { anvisaRegistration, description, optionalEmail, requiredDate, requiredText, showValidationError } from '@/lib/form-validation';
+import { anvisaRegistration, description as descriptionSchema, optionalEmail, requiredDate, requiredText, showValidationError } from '@/lib/form-validation';
 
-const schema = z.object({ dataOcorrencia: requiredDate('Data da Ocorrência'), setor: requiredText('Setor'), tipoProduto: requiredText('Produto'), marca: requiredText('Marca'), registroAnvisa: anvisaRegistration, lote: requiredText('Lote'), descricao, email: optionalEmail });
+const schema = z.object({ dataOcorrencia: requiredDate('Data da Ocorrência'), setor: requiredText('Setor'), tipoProduto: requiredText('Produto'), marca: requiredText('Marca'), registroAnvisa: anvisaRegistration, lote: requiredText('Lote'), descricao: descriptionSchema, email: optionalEmail });
 
 const TecnovigilanciaForm = () => {
   const navigate = useNavigate();
