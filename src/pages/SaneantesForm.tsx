@@ -7,11 +7,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, SprayCan } from 'lucide-react';
 import { toast } from 'sonner';
+import { z } from 'zod';
+import { SectorSelect } from '@/components/forms/SectorSelect';
+import { descriptionPlaceholder, today } from '@/lib/form-reference';
+import { anvisaRegistration, description, optionalEmail, requiredDate, requiredText, showValidationError } from '@/lib/form-validation';
+
+const schema = z.object({ dataOcorrencia: requiredDate('Data da Ocorrência'), setor: requiredText('Setor'), produto: requiredText('Produto Envolvido'), marca: requiredText('Marca'), registroAnvisa: anvisaRegistration, lote: requiredText('Lote'), descricao, email: optionalEmail });
 
 const SaneantesForm = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    dataOcorrencia: '',
     setor: '',
+    produto: '',
     marca: '',
     registroAnvisa: '',
     lote: '',
@@ -21,6 +29,8 @@ const SaneantesForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const error = showValidationError(schema.safeParse(formData));
+    if (error) { toast.error(error); return; }
     toast.success('Notificação enviada com sucesso!');
     setTimeout(() => navigate('/'), 1500);
   };
@@ -47,19 +57,22 @@ const SaneantesForm = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="setor">Setor *</Label>
-                <Input id="setor" value={formData.setor} onChange={(e) => setFormData({ ...formData, setor: e.target.value })} required />
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2"><Label htmlFor="dataOcorrencia">Data da Ocorrência *</Label><Input id="dataOcorrencia" type="date" max={today()} value={formData.dataOcorrencia} onChange={(e) => setFormData({ ...formData, dataOcorrencia: e.target.value })} required /></div>
+                <SectorSelect label="Setor de Origem" value={formData.setor} onChange={(setor) => setFormData({ ...formData, setor })} />
               </div>
+
+              <div className="space-y-2"><Label htmlFor="produto">Produto Envolvido *</Label><Input id="produto" value={formData.produto} onChange={(e) => setFormData({ ...formData, produto: e.target.value })} required /></div>
 
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="marca">Marca</Label>
-                  <Input id="marca" value={formData.marca} onChange={(e) => setFormData({ ...formData, marca: e.target.value })} />
+                  <Label htmlFor="marca">Marca *</Label>
+                  <Input id="marca" value={formData.marca} onChange={(e) => setFormData({ ...formData, marca: e.target.value })} required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="registroAnvisa">Registro Anvisa</Label>
-                  <Input id="registroAnvisa" value={formData.registroAnvisa} onChange={(e) => setFormData({ ...formData, registroAnvisa: e.target.value })} />
+                  <Label htmlFor="registroAnvisa">Registro ANVISA *</Label>
+                  <Input id="registroAnvisa" inputMode="numeric" placeholder="Somente números" value={formData.registroAnvisa} onChange={(e) => setFormData({ ...formData, registroAnvisa: e.target.value.replace(/[^\d]/g, '') })} required />
+                  <Button type="button" variant="link" className="h-auto p-0 text-xs" onClick={() => setFormData({ ...formData, registroAnvisa: 'Não informado' })}>Usar “Não informado”</Button>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lote">Lote *</Label>
@@ -69,15 +82,15 @@ const SaneantesForm = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="descricao">Descrição detalhada da ocorrência *</Label>
-                <Textarea id="descricao" rows={6} value={formData.descricao} onChange={(e) => setFormData({ ...formData, descricao: e.target.value })} required />
+                <Textarea id="descricao" rows={6} minLength={30} maxLength={5000} placeholder={descriptionPlaceholder} value={formData.descricao} onChange={(e) => setFormData({ ...formData, descricao: e.target.value })} required />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">E-mail para Acompanhamento (Opcional)</Label>
+                <Label htmlFor="email">E-mail para acompanhamento da notificação (Opcional)</Label>
                 <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="seu@email.com" />
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row">
                 <Button type="submit" size="lg" className="flex-1">Enviar Notificação</Button>
                 <Button type="button" variant="outline" size="lg" onClick={() => navigate('/')}>Cancelar</Button>
               </div>
