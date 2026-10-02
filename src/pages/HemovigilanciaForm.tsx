@@ -1,62 +1,84 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { z } from 'zod';
+import { toast } from 'sonner';
+import { ArrowLeft, Droplet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Droplet } from 'lucide-react';
-import { toast } from 'sonner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SectorSelect } from '@/components/forms/SectorSelect';
+import { descriptionPlaceholder, hemocomponentes, sinaisSintomas, today } from '@/lib/form-reference';
+import { description as descriptionSchema, optionalEmail, requiredDate, requiredText, showValidationError } from '@/lib/form-validation';
+
+const schema = z.object({
+  nomePaciente: requiredText('Nome do Paciente'),
+  prontuario: requiredText('Nº do Prontuário', 50),
+  setor: requiredText('Setor'),
+  leito: requiredText('Leito', 30),
+  tipoIncidente: z.string().min(1, 'Tipo de Reação é obrigatório.'),
+  dataOcorrencia: requiredDate('Data da Ocorrência'),
+  historiaPrevia: z.string().min(1, 'Informe a história de incidentes prévios.'),
+  hemocomponente: requiredText('Hemocomponente'),
+  numeroHemocomponente: requiredText('Nº do Hemocomponente', 50),
+  dataAdministracao: requiredDate('Data da Administração'),
+  sintomas: z.array(z.string()).min(1, 'Selecione ao menos um sinal ou sintoma.'),
+  outroSintoma: z.string().trim().max(200),
+  descricao: descriptionSchema,
+  notificante: requiredText('Servidor Notificante'),
+  email: optionalEmail,
+})
+  .refine((d) => !d.sintomas.includes('Outro') || d.outroSintoma.length > 0, 'Especifique o sintoma “Outro”.')
+  .refine((d) => !d.dataAdministracao || !d.dataOcorrencia || d.dataAdministracao <= d.dataOcorrencia, 'A data da administração não pode ser posterior à ocorrência.');
 
 const HemovigilanciaForm = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    nomePaciente: '',
-    prontuario: '',
-    setorLeito: '',
-    tipoIncidente: 'imediato',
-    dataOcorrencia: '',
-    historiaPrevia: 'nao',
-    hemocomponente: '',
-    numeroHemocomponente: '',
-    dataAdministracao: '',
-    sintomas: [] as string[],
-    outroSintoma: '',
-    email: '',
+  const [f, setF] = useState({
+    nomePaciente: '', prontuario: '', setor: '', leito: '', tipoIncidente: '', dataOcorrencia: '', historiaPrevia: '',
+    hemocomponente: '', numeroHemocomponente: '', dataAdministracao: '', sintomas: [] as string[], outroSintoma: '',
+    descricao: '', notificante: '', email: '',
   });
-
-  const sintomas = [
-    'Ansiedade', 'Calafrio', 'Choque', 'Cianose de extremidades', 'Cianose labial',
-    'Dispnéia', 'Dor abdominal', 'Dor lombar', 'Dor torácica', 'Edema agudo de pulmão',
-    'Eritema', 'Febre', 'Hemoglobinúria', 'Hipertensão arterial', 'Hipotensão arterial',
-    'Icterícia', 'Náuseas', 'Pápulas', 'Rouquidão', 'Soroconversão',
-    'Taquicardia', 'Taquipnéia', 'Tosse', 'Tremores', 'Urticária', 'Vômitos'
-  ];
-
-  const toggleSintoma = (sintoma: string) => {
-    setFormData(prev => ({
-      ...prev,
-      sintomas: prev.sintomas.includes(sintoma)
-        ? prev.sintomas.filter(s => s !== sintoma)
-        : [...prev.sintomas, sintoma]
-    }));
-  };
+  const set = (k: keyof typeof f) => (v: string) => setF((p) => ({ ...p, [k]: v }));
+  const toggle = (s: string) => setF((p) => ({ ...p, sintomas: p.sintomas.includes(s) ? p.sintomas.filter((x) => x !== s) : [...p.sintomas, s] }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const error = showValidationError(schema.safeParse(f));
+    if (error) return toast.error(error);
     toast.success('Notificação enviada com sucesso!');
     setTimeout(() => navigate('/'), 1500);
   };
+
+  const text = (id: keyof typeof f, label: string) => (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label} *</Label>
+      <Input id={id} value={f[id] as string} onChange={(e) => set(id)(e.target.value)} />
+    </div>
+  );
+  const radio = (id: keyof typeof f, label: string, opts: [string, string][]) => (
+    <div className="space-y-2">
+      <Label>{label} *</Label>
+      <RadioGroup value={f[id] as string} onValueChange={set(id)} className="flex gap-4">
+        {opts.map(([v, l]) => (
+          <div key={v} className="flex items-center space-x-2">
+            <RadioGroupItem value={v} id={`${id}-${v}`} />
+            <Label htmlFor={`${id}-${v}`} className="font-normal">{l}</Label>
+          </div>
+        ))}
+      </RadioGroup>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-accent/20 py-8">
       <div className="container max-w-3xl mx-auto px-4">
         <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
-          <ArrowLeft className="h-4 w-4" />
-          Voltar
+          <ArrowLeft className="h-4 w-4" /> Voltar
         </Link>
-
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -70,167 +92,64 @@ const HemovigilanciaForm = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nomePaciente">Nome do Paciente *</Label>
-                  <Input
-                    id="nomePaciente"
-                    value={formData.nomePaciente}
-                    onChange={(e) => setFormData({ ...formData, nomePaciente: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="prontuario">Nº de Prontuário *</Label>
-                  <Input
-                    id="prontuario"
-                    value={formData.prontuario}
-                    onChange={(e) => setFormData({ ...formData, prontuario: e.target.value })}
-                    required
-                  />
-                </div>
+                {text('nomePaciente', 'Nome do Paciente')}
+                {text('prontuario', 'Nº do Prontuário')}
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="setorLeito">Setor/Leito *</Label>
-                <Input
-                  id="setorLeito"
-                  value={formData.setorLeito}
-                  onChange={(e) => setFormData({ ...formData, setorLeito: e.target.value })}
-                  placeholder="Ex: UTI - Leito 5"
-                  required
-                />
-              </div>
-
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Tipo de Incidente *</Label>
-                  <RadioGroup
-                    value={formData.tipoIncidente}
-                    onValueChange={(value) => setFormData({ ...formData, tipoIncidente: value })}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="imediato" id="imediato" />
-                      <Label htmlFor="imediato" className="font-normal">Imediato</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="tardio" id="tardio" />
-                      <Label htmlFor="tardio" className="font-normal">Tardio</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
+                <SectorSelect value={f.setor} onChange={set('setor')} />
+                {text('leito', 'Leito')}
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                {radio('tipoIncidente', 'Tipo de Reação', [['imediato', 'Imediata'], ['tardio', 'Tardia']])}
                 <div className="space-y-2">
                   <Label htmlFor="dataOcorrencia">Data da Ocorrência *</Label>
-                  <Input
-                    id="dataOcorrencia"
-                    type="date"
-                    value={formData.dataOcorrencia}
-                    onChange={(e) => setFormData({ ...formData, dataOcorrencia: e.target.value })}
-                    required
-                  />
+                  <Input id="dataOcorrencia" type="date" max={today()} value={f.dataOcorrencia} onChange={(e) => set('dataOcorrencia')(e.target.value)} />
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <Label>História de Incidentes Transfusionais Prévios *</Label>
-                <RadioGroup
-                  value={formData.historiaPrevia}
-                  onValueChange={(value) => setFormData({ ...formData, historiaPrevia: value })}
-                >
-                  <div className="flex gap-4">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="sim" id="sim" />
-                      <Label htmlFor="sim" className="font-normal">Sim</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="nao" id="nao" />
-                      <Label htmlFor="nao" className="font-normal">Não</Label>
-                    </div>
-                  </div>
-                </RadioGroup>
-              </div>
-
+              {radio('historiaPrevia', 'História de Incidentes Transfusionais Prévios', [['sim', 'Sim'], ['nao', 'Não'], ['naosei', 'Não sei']])}
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="hemocomponente">Hemocomponente *</Label>
-                  <Input
-                    id="hemocomponente"
-                    value={formData.hemocomponente}
-                    onChange={(e) => setFormData({ ...formData, hemocomponente: e.target.value })}
-                    required
-                  />
+                  <Label>Hemocomponente *</Label>
+                  <Select value={f.hemocomponente} onValueChange={set('hemocomponente')}>
+                    <SelectTrigger aria-label="Hemocomponente"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                    <SelectContent>{hemocomponentes.map((h) => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
+                  </Select>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="numeroHemocomponente">Nº do Hemocomponente *</Label>
-                  <Input
-                    id="numeroHemocomponente"
-                    value={formData.numeroHemocomponente}
-                    onChange={(e) => setFormData({ ...formData, numeroHemocomponente: e.target.value })}
-                    required
-                  />
-                </div>
-
+                {text('numeroHemocomponente', 'Nº do Hemocomponente')}
                 <div className="space-y-2">
                   <Label htmlFor="dataAdministracao">Data da Administração *</Label>
-                  <Input
-                    id="dataAdministracao"
-                    type="date"
-                    value={formData.dataAdministracao}
-                    onChange={(e) => setFormData({ ...formData, dataAdministracao: e.target.value })}
-                    required
-                  />
+                  <Input id="dataAdministracao" type="date" max={today()} value={f.dataAdministracao} onChange={(e) => set('dataAdministracao')(e.target.value)} />
                 </div>
               </div>
-
               <div className="space-y-3">
                 <Label>Sinais e Sintomas Apresentados *</Label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4 border rounded-lg bg-muted/30">
-                  {sintomas.map((sintoma) => (
-                    <div key={sintoma} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={sintoma}
-                        checked={formData.sintomas.includes(sintoma)}
-                        onCheckedChange={() => toggleSintoma(sintoma)}
-                      />
-                      <Label htmlFor={sintoma} className="font-normal text-sm cursor-pointer">
-                        {sintoma}
-                      </Label>
+                  {sinaisSintomas.map((s) => (
+                    <div key={s} className="flex items-center space-x-2">
+                      <Checkbox id={`s-${s}`} checked={f.sintomas.includes(s)} onCheckedChange={() => toggle(s)} />
+                      <Label htmlFor={`s-${s}`} className="font-normal text-sm cursor-pointer">{s}</Label>
                     </div>
                   ))}
                 </div>
+                {f.sintomas.includes('Outro') && (
+                  <Input aria-label="Especificar outro sintoma" placeholder="Especifique o sintoma *" maxLength={200} value={f.outroSintoma} onChange={(e) => set('outroSintoma')(e.target.value)} />
+                )}
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="outroSintoma">Outro Sintoma (especificar)</Label>
-                <Input
-                  id="outroSintoma"
-                  value={formData.outroSintoma}
-                  onChange={(e) => setFormData({ ...formData, outroSintoma: e.target.value })}
-                />
+                <Label htmlFor="descricao">Descreva o incidente *</Label>
+                <Textarea id="descricao" rows={5} placeholder={descriptionPlaceholder} maxLength={5000} value={f.descricao} onChange={(e) => set('descricao')(e.target.value)} />
+                <p className="text-xs text-muted-foreground">{f.descricao.trim().length}/30 caracteres mínimos</p>
               </div>
-
+              {text('notificante', 'Servidor Notificante')}
               <div className="space-y-2">
-                <Label htmlFor="email">E-mail para Acompanhamento (Opcional)</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="seu@email.com"
-                />
+                <Label htmlFor="email">E-mail para acompanhamento (Opcional)</Label>
+                <Input id="email" type="email" placeholder="seu@email.com" value={f.email} onChange={(e) => set('email')(e.target.value)} />
               </div>
-
-              <div className="flex gap-3 pt-4">
-                <Button type="submit" size="lg" className="flex-1">
-                  Enviar Notificação
-                </Button>
-                <Button type="button" variant="outline" size="lg" onClick={() => navigate('/')}>
-                  Cancelar
-                </Button>
+              <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row">
+                <Button type="submit" size="lg" className="flex-1">Enviar Notificação</Button>
+                <Button type="button" variant="outline" size="lg" onClick={() => navigate('/')}>Cancelar</Button>
               </div>
             </form>
           </CardContent>
