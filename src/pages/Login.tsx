@@ -49,7 +49,7 @@ const Login = () => {
             <ArrowLeft className="h-4 w-4" />
             Voltar para página inicial
           </Link>
-          <h1 className="text-3xl font-bold text-foreground">Sistema Hospitalar</h1>
+          <h1 className="text-3xl font-bold text-foreground">SINEA</h1>
           <p className="text-muted-foreground mt-2">Área de acesso restrito</p>
         </div>
 

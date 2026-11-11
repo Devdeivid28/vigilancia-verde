@@ -43,7 +43,7 @@ export function AppSidebar() {
         {!collapsed && (
           <div className="flex flex-col gap-1">
             <h2 className="text-lg font-semibold text-sidebar-primary">
-              Sistema Hospitalar
+              SINEA
             </h2>
             <p className="text-xs text-sidebar-foreground/70">{user?.name}</p>
           </div>

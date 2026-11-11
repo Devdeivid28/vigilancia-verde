@@ -77,10 +77,10 @@ const Home = () => {
         <header className="flex justify-between items-center mb-12">
           <div>
             <h1 className="text-4xl font-bold text-foreground mb-2">
-              Sistema de Notificações
+              SINEA
             </h1>
             <p className="text-lg text-muted-foreground">
-              Portal de registro de eventos adversos e incidentes
+              Sistema de Notificação de Eventos Adversos
             </p>
           </div>
           <Link to="/login">
