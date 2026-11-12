@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowLeft, Lock, User } from 'lucide-react';
 import { toast } from 'sonner';
+import logoSinea from '@/assets/sinea-logo-tipo-gradiente.png';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -49,7 +50,7 @@ const Login = () => {
             <ArrowLeft className="h-4 w-4" />
             Voltar para página inicial
           </Link>
-          <h1 className="text-3xl font-bold text-foreground">SINEA</h1>
+          <img src={logoSinea} alt="SINEA" className="h-14 w-auto mx-auto" width={1024} height={1024} />
           <p className="text-muted-foreground mt-2">Área de acesso restrito</p>
         </div>
 

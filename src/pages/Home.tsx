@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, Pill, Droplet, LogIn, SprayCan, TrendingDown, BadgeCheck, Bandage, Stethoscope } from 'lucide-react';
+import logoSinea from '@/assets/sinea-logo-tipo-gradiente.png';
 
 const Home = () => {
   const sectors = [
@@ -76,9 +77,7 @@ const Home = () => {
       <div className="container mx-auto px-4 py-8">
         <header className="flex justify-between items-center mb-12">
           <div>
-            <h1 className="text-4xl font-bold text-foreground mb-2">
-              SINEA
-            </h1>
+            <img src={logoSinea} alt="SINEA" className="h-16 w-auto mb-2" width={1024} height={1024} />
             <p className="text-lg text-muted-foreground">
               Sistema de Notificação de Eventos Adversos
             </p>

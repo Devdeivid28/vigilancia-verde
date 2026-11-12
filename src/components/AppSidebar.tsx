@@ -14,6 +14,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { useAuth } from '@/contexts/AuthContext';
+import logoSinea from '@/assets/sinea-logo-tipo-gradiente.png';
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -42,9 +43,7 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border p-4">
         {!collapsed && (
           <div className="flex flex-col gap-1">
-            <h2 className="text-lg font-semibold text-sidebar-primary">
-              SINEA
-            </h2>
+            <img src={logoSinea} alt="SINEA" className="h-8 w-auto" width={1024} height={1024} />
             <p className="text-xs text-sidebar-foreground/70">{user?.name}</p>
           </div>
         )}
