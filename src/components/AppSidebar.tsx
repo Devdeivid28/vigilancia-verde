@@ -43,7 +43,7 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border p-4">
         {!collapsed && (
           <div className="flex flex-col gap-1">
-            <img src={logoSinea} alt="SINEA" className="h-8 w-auto" width={1024} height={1024} />
+            <img src={logoSinea} alt="SINEA" className="h-10 w-auto" width={860} height={208} />
             <p className="text-xs text-sidebar-foreground/70">{user?.name}</p>
           </div>
         )}

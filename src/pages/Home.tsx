@@ -77,7 +77,7 @@ const Home = () => {
       <div className="container mx-auto px-4 py-8">
         <header className="flex justify-between items-center mb-12">
           <div>
-            <img src={logoSinea} alt="SINEA" className="h-16 w-auto mb-2" width={1024} height={1024} />
+            <img src={logoSinea} alt="SINEA" className="h-24 w-auto mb-2" width={860} height={208} />
             <p className="text-lg text-muted-foreground">
               Sistema de Notificação de Eventos Adversos
             </p>
